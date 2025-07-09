@@ -42,10 +42,19 @@ function initializeCalendar() {
 
 // 初始化月份选项
 function initializeMonthOptions() {
+    console.log('开始初始化月份选项...');
     const reportMonthSelect = document.getElementById('reportMonth');
+
+    if (!reportMonthSelect) {
+        console.error('❌ 找不到申请月份选择框元素');
+        return;
+    }
+
     const now = new Date();
     const currentMonth = now.getMonth() + 1; // 当前月份 (1-12)
     const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1; // 上个月
+
+    console.log(`当前月份: ${currentMonth}, 默认选择: ${lastMonth}月`);
 
     // 生成1-12月的选项
     for (let month = 1; month <= 12; month++) {
@@ -56,10 +65,13 @@ function initializeMonthOptions() {
         // 默认选中上个月
         if (month === lastMonth) {
             option.selected = true;
+            console.log(`✅ 默认选中: ${month}月`);
         }
 
         reportMonthSelect.appendChild(option);
     }
+
+    console.log('✅ 月份选项初始化完成');
 }
 
 // 获取当前应该填报的月份
