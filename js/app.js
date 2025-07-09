@@ -24,11 +24,15 @@ const selectedDatesDiv = document.getElementById('selectedDates');
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 应用初始化开始...');
-    initializeCalendar();
-    initializeMonthOptions();
-    loadApplicants();
-    bindEvents();
-    console.log('✅ 应用初始化完成');
+
+    // 延迟一点确保DOM完全加载
+    setTimeout(() => {
+        initializeCalendar();
+        initializeMonthOptions();
+        loadApplicants();
+        bindEvents();
+        console.log('✅ 应用初始化完成');
+    }, 100);
 });
 
 // 初始化日历（默认显示上月）
@@ -42,36 +46,53 @@ function initializeCalendar() {
 
 // 初始化月份选项
 function initializeMonthOptions() {
-    console.log('开始初始化月份选项...');
-    const reportMonthSelect = document.getElementById('reportMonth');
+    try {
+        console.log('开始初始化月份选项...');
+        const reportMonthSelect = document.getElementById('reportMonth');
 
-    if (!reportMonthSelect) {
-        console.error('❌ 找不到申请月份选择框元素');
-        return;
-    }
-
-    const now = new Date();
-    const currentMonth = now.getMonth() + 1; // 当前月份 (1-12)
-    const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1; // 上个月
-
-    console.log(`当前月份: ${currentMonth}, 默认选择: ${lastMonth}月`);
-
-    // 生成1-12月的选项
-    for (let month = 1; month <= 12; month++) {
-        const option = document.createElement('option');
-        option.value = month.toString();
-        option.textContent = `${month}月`;
-
-        // 默认选中上个月
-        if (month === lastMonth) {
-            option.selected = true;
-            console.log(`✅ 默认选中: ${month}月`);
+        if (!reportMonthSelect) {
+            console.error('❌ 找不到申请月份选择框元素，ID: reportMonth');
+            // 列出所有select元素用于调试
+            const allSelects = document.querySelectorAll('select');
+            console.log('页面中的所有select元素:', Array.from(allSelects).map(s => s.id || s.name));
+            return;
         }
 
-        reportMonthSelect.appendChild(option);
-    }
+        console.log('✅ 找到申请月份选择框元素');
 
-    console.log('✅ 月份选项初始化完成');
+        // 清空现有选项（保留第一个默认选项）
+        const defaultOption = reportMonthSelect.querySelector('option[value=""]');
+        reportMonthSelect.innerHTML = '';
+        if (defaultOption) {
+            reportMonthSelect.appendChild(defaultOption);
+        }
+
+        const now = new Date();
+        const currentMonth = now.getMonth() + 1; // 当前月份 (1-12)
+        const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1; // 上个月
+
+        console.log(`当前月份: ${currentMonth}, 默认选择: ${lastMonth}月`);
+
+        // 生成1-12月的选项
+        for (let month = 1; month <= 12; month++) {
+            const option = document.createElement('option');
+            option.value = month.toString();
+            option.textContent = `${month}月`;
+
+            // 默认选中上个月
+            if (month === lastMonth) {
+                option.selected = true;
+                console.log(`✅ 默认选中: ${month}月`);
+            }
+
+            reportMonthSelect.appendChild(option);
+        }
+
+        console.log(`✅ 月份选项初始化完成，共添加了 ${reportMonthSelect.options.length} 个选项`);
+
+    } catch (error) {
+        console.error('❌ 初始化月份选项时发生错误:', error);
+    }
 }
 
 // 获取当前应该填报的月份
