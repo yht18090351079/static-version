@@ -323,6 +323,7 @@ class FeishuAPI {
             const dataMapping = {
                 '申请人': String(expenseData.applicant),
                 '申请部门': String(expenseData.applicantDepartment || ''),
+                '申请月份': String(expenseData.reportMonth || ''),
                 '出差日期': expenseData.selectedDates ? expenseData.selectedDates.join(', ') : '',
                 '差补类型': expenseData.allowanceType === '90' ? '实施' : '商务',
                 '应享受差补天数': String(expenseData.travelDays),
