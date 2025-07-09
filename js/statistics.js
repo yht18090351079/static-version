@@ -231,14 +231,18 @@ function hideLoading(button) {
 
 // 更新图表
 function updateCharts() {
-    updateDepartmentChart();
-    updateMonthChart();
-    updateTypeChart();
-    updatePersonChart();
+    try {
+        updateDepartmentChart();
+        updateMonthChart();
+        updateTypeChart();
+        updatePersonChart();
+    } catch (error) {
+        console.error('更新图表失败:', error);
+    }
 }
 
 // 更新部门费用统计图表
-function updateDepartmentChart() {
+function updateDepartmentChart(chartType = 'bar') {
     const ctx = document.getElementById('departmentChart').getContext('2d');
 
     // 按部门统计费用
@@ -254,8 +258,8 @@ function updateDepartmentChart() {
         charts.departmentChart.destroy();
     }
 
-    charts.departmentChart = new Chart(ctx, {
-        type: 'bar',
+    const chartConfig = {
+        type: chartType,
         data: {
             labels: labels,
             datasets: [{
@@ -274,25 +278,31 @@ function updateDepartmentChart() {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return '¥' + value.toLocaleString();
-                        }
-                    }
+                    display: chartType === 'pie' || chartType === 'doughnut'
                 }
             }
         }
-    });
+    };
+
+    // 根据图表类型设置不同的选项
+    if (chartType === 'bar') {
+        chartConfig.options.scales = {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '¥' + value.toLocaleString();
+                    }
+                }
+            }
+        };
+    }
+
+    charts.departmentChart = new Chart(ctx, chartConfig);
 }
 
 // 更新月份趋势图表
-function updateMonthChart() {
+function updateMonthChart(chartType = 'line') {
     const ctx = document.getElementById('monthChart').getContext('2d');
 
     // 按月份统计费用
@@ -310,18 +320,18 @@ function updateMonthChart() {
         charts.monthChart.destroy();
     }
 
-    charts.monthChart = new Chart(ctx, {
-        type: 'line',
+    const chartConfig = {
+        type: chartType,
         data: {
             labels: labels,
             datasets: [{
                 label: '费用金额 (元)',
                 data: data,
                 borderColor: '#3498db',
-                backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                borderWidth: 3,
-                fill: true,
-                tension: 0.4
+                backgroundColor: chartType === 'line' ? 'rgba(52, 152, 219, 0.1)' : '#3498db',
+                borderWidth: chartType === 'line' ? 3 : 1,
+                fill: chartType === 'line',
+                tension: chartType === 'line' ? 0.4 : 0
             }]
         },
         options: {
@@ -343,7 +353,9 @@ function updateMonthChart() {
                 }
             }
         }
-    });
+    };
+
+    charts.monthChart = new Chart(ctx, chartConfig);
 }
 
 // 更新差补类型统计图表
@@ -410,7 +422,7 @@ function updatePersonChart() {
     }
 
     charts.personChart = new Chart(ctx, {
-        type: 'horizontalBar',
+        type: 'bar',
         data: {
             labels: labels,
             datasets: [{
@@ -422,6 +434,7 @@ function updatePersonChart() {
             }]
         },
         options: {
+            indexAxis: 'y', // 这使得条形图变为水平
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
@@ -507,10 +520,14 @@ function handleChartTypeChange(event) {
     button.classList.add('active');
 
     // 重新创建图表
-    if (chartId === 'departmentChart') {
-        updateDepartmentChart();
-    } else if (chartId === 'monthChart') {
-        updateMonthChart();
+    try {
+        if (chartId === 'departmentChart') {
+            updateDepartmentChart(chartType);
+        } else if (chartId === 'monthChart') {
+            updateMonthChart(chartType);
+        }
+    } catch (error) {
+        console.error('切换图表类型失败:', error);
     }
 }
 
