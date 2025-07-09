@@ -1,0 +1,304 @@
+/* 日历组件样式 */
+.calendar-group {
+    grid-column: 1 / -1;
+}
+
+.calendar-container {
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    background: white;
+    overflow: hidden;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.calendar-nav-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+.calendar-nav-btn:hover {
+    background: #2980b9;
+}
+
+.current-month {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-day-header {
+    padding: 0.75rem;
+    text-align: center;
+    font-weight: 600;
+    color: #6c757d;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 0.875rem;
+}
+
+.calendar-day {
+    padding: 0.75rem;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    min-height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.calendar-day:hover {
+    background: #e3f2fd;
+}
+
+.calendar-day.other-month {
+    color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+.calendar-day.other-month:hover {
+    background: transparent;
+}
+
+.calendar-day.selected {
+    background: #3498db;
+    color: white;
+    font-weight: 600;
+}
+
+.calendar-day.today {
+    background: #e8f5e8;
+    color: #27ae60;
+    font-weight: 600;
+}
+
+.calendar-day.today.selected {
+    background: #2980b9;
+    color: white;
+}
+
+.selected-dates-info {
+    padding: 0.75rem 1rem;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+.selected-dates-label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.selected-dates {
+    min-height: 60px;
+    padding: 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    background: white;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: flex-start;
+}
+
+.no-dates {
+    color: #6c757d;
+    font-style: italic;
+}
+
+.selected-date-tag {
+    background: #3498db;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.remove-date {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.remove-date:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* 金额汇总区域 */
+.amount-summary {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-top: 1rem;
+}
+
+.amount-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.amount-row:last-child {
+    border-bottom: none;
+}
+
+.amount-row.total-row {
+    border-top: 2px solid #3498db;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.amount-label {
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.amount-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2980b9;
+}
+
+.total-amount {
+    color: #e74c3c;
+    font-size: 1.5rem;
+}
+
+.amount-unit {
+    color: #6c757d;
+    margin-left: 0.25rem;
+}
+
+/* 操作按钮样式 */
+.btn-large {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.btn-icon {
+    margin-right: 0.5rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .nav-content {
+        padding: 0 1rem;
+        flex-direction: column;
+        height: auto;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+    
+    .nav-menu {
+        margin-top: 1rem;
+    }
+    
+    .main-container {
+        padding: 1rem;
+    }
+    
+    .page-header h2 {
+        font-size: 2rem;
+    }
+    
+    .expense-form {
+        padding: 2rem 1.5rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .amount-row {
+        font-size: 0.9rem;
+    }
+    
+    .amount-value {
+        font-size: 1.1rem;
+    }
+    
+    .total-amount {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-brand h1 {
+        font-size: 1.2rem;
+    }
+    
+    .page-header h2 {
+        font-size: 1.8rem;
+    }
+    
+    .expense-form {
+        padding: 1.5rem 1rem;
+    }
+    
+    .section-title {
+        font-size: 1.1rem;
+    }
+    
+    .calendar-header {
+        padding: 0.75rem;
+    }
+    
+    .current-month {
+        font-size: 1rem;
+    }
+    
+    .calendar-nav-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+}

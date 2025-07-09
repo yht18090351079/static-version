@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>申请人管理 - 差旅费用填报系统</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 导航栏 -->
+        <nav class="navbar">
+            <div class="nav-content">
+                <div class="nav-brand">
+                    <h1>差旅费用填报系统</h1>
+                </div>
+                <div class="nav-menu">
+                    <a href="index.html" class="nav-link">费用填报</a>
+                    <a href="applicants.html" class="nav-link active">申请人管理</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 主要内容区域 -->
+        <main class="main-container">
+            <div class="page-header">
+                <h2>申请人管理</h2>
+                <p class="page-description">管理系统中的申请人信息，数据来源于飞书花名册</p>
+            </div>
+
+            <!-- 申请人列表卡片 -->
+            <div class="form-card">
+                <div class="applicants-container">
+                    <!-- 数据源信息 -->
+                    <div class="data-source-info">
+                        <div class="source-status" id="sourceStatus">
+                            <span class="status-icon">📊</span>
+                            <span class="status-text">正在加载申请人数据...</span>
+                        </div>
+                    </div>
+
+                    <!-- 搜索和筛选 -->
+                    <div class="search-section">
+                        <div class="search-controls">
+                            <div class="search-group">
+                                <input type="text" id="searchInput" placeholder="搜索申请人姓名..." class="search-input">
+                            </div>
+                            <div class="filter-group">
+                                <select id="departmentFilter" class="department-filter">
+                                    <option value="">所有部门</option>
+                                </select>
+                            </div>
+                            <div class="action-group">
+                                <button type="button" id="refreshData" class="btn-secondary">
+                                    <span class="btn-icon">🔄</span>
+                                    刷新数据
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 申请人列表 -->
+                    <div class="applicants-list-section">
+                        <div class="list-header">
+                            <h3>申请人列表</h3>
+                            <div class="list-stats">
+                                <span id="totalCount">总计: 0 人</span>
+                                <span id="filteredCount"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="applicants-grid" id="applicantsGrid">
+                            <!-- 申请人卡片将在这里动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 部门统计 -->
+                    <div class="department-stats-section">
+                        <h3>部门统计</h3>
+                        <div class="stats-grid" id="departmentStats">
+                            <!-- 部门统计将在这里显示 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 消息提示 -->
+        <div id="messageContainer" class="message-container"></div>
+    </div>
+
+    <!-- 申请人详情模态框 -->
+    <div id="applicantDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>申请人详情</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="detail-info" id="applicantDetailInfo">
+                    <!-- 详情信息将在这里显示 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载飞书API模块 -->
+    <script src="js/feishu-api-proxy.js"></script>
+    <!-- 加载申请人管理脚本 -->
+    <script src="js/applicants.js"></script>
+</body>
+</html>

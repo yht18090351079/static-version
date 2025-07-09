@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>差旅费用填报系统</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 导航栏 -->
+        <nav class="navbar">
+            <div class="nav-content">
+                <div class="nav-brand">
+                    <h1>差旅费用填报系统</h1>
+                </div>
+                <div class="nav-menu">
+                    <a href="index.html" class="nav-link active">费用填报</a>
+                    <a href="applicants.html" class="nav-link">申请人管理</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 主要内容区域 -->
+        <main class="main-container">
+            <div class="page-header">
+                <h2>差旅费用填报</h2>
+                <p class="page-description">请填写您的差旅费用信息，系统将自动计算相关补贴</p>
+            </div>
+
+            <!-- 表单卡片 -->
+            <div class="form-card">
+                <form id="expenseForm" class="expense-form">
+                    <!-- 申请人信息区域 -->
+                    <div class="form-section">
+                        <h3 class="section-title">申请人信息</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="department">申请部门 <span class="required">*</span></label>
+                                <select id="department" name="department" required>
+                                    <option value="">请选择部门</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="applicant">申请人 <span class="required">*</span></label>
+                                <select id="applicant" name="applicant" required disabled>
+                                    <option value="">请先选择部门</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 差旅日期选择区域 -->
+                    <div class="form-section">
+                        <h3 class="section-title">差旅日期</h3>
+                        <div class="calendar-container">
+                            <div class="calendar-header">
+                                <button type="button" id="prevMonth" class="calendar-nav-btn">‹</button>
+                                <span id="currentMonth" class="current-month"></span>
+                                <button type="button" id="nextMonth" class="calendar-nav-btn">›</button>
+                            </div>
+                            <div class="calendar-grid" id="calendarGrid">
+                                <!-- 日历网格将通过JavaScript生成 -->
+                            </div>
+                            <div class="selected-dates-info">
+                                <div class="selected-dates-label">已选择日期：</div>
+                                <div id="selectedDates" class="selected-dates">
+                                    <!-- 选中的日期将显示在这里 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 费用信息区域 -->
+                    <div class="form-section">
+                        <h3 class="section-title">费用信息</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="allowanceType">差补类型 <span class="required">*</span></label>
+                                <select id="allowanceType" name="allowanceType" required>
+                                    <option value="">请选择差补类型</option>
+                                    <option value="90">商务 (90元/天)</option>
+                                    <option value="60">实施 (60元/天)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="mealDays">餐补天数</label>
+                                <input type="number" id="mealDays" name="mealDays" min="0" value="0">
+                                <small class="form-hint">默认与差补天数相同，可手动调整</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 金额汇总区域 -->
+                    <div class="form-section">
+                        <h3 class="section-title">金额汇总</h3>
+                        <div class="amount-summary">
+                            <div class="amount-row">
+                                <span class="amount-label">应享受差补天数：</span>
+                                <span id="travelDaysCount" class="amount-value">0</span>
+                                <span class="amount-unit">天</span>
+                            </div>
+                            <div class="amount-row">
+                                <span class="amount-label">差补金额：</span>
+                                <span id="travelAllowanceAmount" class="amount-value">0</span>
+                                <span class="amount-unit">元</span>
+                            </div>
+                            <div class="amount-row">
+                                <span class="amount-label">餐补金额：</span>
+                                <span id="mealAllowanceAmount" class="amount-value">0</span>
+                                <span class="amount-unit">元</span>
+                            </div>
+                            <div class="amount-row total-row">
+                                <span class="amount-label">合计：</span>
+                                <span id="totalAmount" class="amount-value total-amount">0</span>
+                                <span class="amount-unit">元</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary btn-large">
+                            <span class="btn-icon">📝</span>
+                            提交申请
+                        </button>
+                        <button type="reset" class="btn-secondary">重置表单</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+        <!-- 消息提示 -->
+        <div id="messageContainer" class="message-container"></div>
+    </div>
+
+    <!-- 加载飞书API模块 -->
+    <script src="js/feishu-api-proxy.js"></script>
+    <!-- 加载主应用脚本 -->
+    <script src="js/app.js"></script>
+</body>
+</html>
