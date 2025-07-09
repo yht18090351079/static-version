@@ -83,11 +83,22 @@ async function findOrCreateMonthTable(appToken, monthName, accessToken) {
             table.name.includes('报销')
         );
 
-        // 如果没找到，使用第一个表格
+        // 如果没找到月份表格，查找包含"月"的表格
+        if (!targetTable) {
+            targetTable = tables.find(table => table.name.includes('月'));
+        }
+
+        // 如果还没找到，使用第一个非花名册表格
+        if (!targetTable) {
+            targetTable = tables.find(table => !table.name.includes('花名册'));
+        }
+
+        // 最后使用第一个表格
         if (!targetTable && tables.length > 0) {
             targetTable = tables[0];
-            console.log(`使用默认表格: ${targetTable.name}`);
         }
+
+        console.log(`使用表格: ${targetTable.name}`);
 
         if (!targetTable) {
             throw new Error('未找到可用的表格');
@@ -228,25 +239,30 @@ exports.handler = async (event, context) => {
         const allowanceTypeField = findFieldName(fieldMappings.allowanceType);
         if (allowanceTypeField) dataMapping[allowanceTypeField] = expenseData.allowanceType === '90' ? '商务' : '实施';
 
-        // 应享受差补天数
+        // 应享受差补天数 - 转换为字符串
         const travelDaysField = findFieldName(fieldMappings.travelDays);
-        if (travelDaysField) dataMapping[travelDaysField] = parseInt(expenseData.travelDays) || 0;
+        if (travelDaysField) dataMapping[travelDaysField] = String(expenseData.travelDays || 0);
 
-        // 差补金额
+        // 差补金额 - 转换为字符串
         const travelAmountField = findFieldName(fieldMappings.travelAmount);
-        if (travelAmountField) dataMapping[travelAmountField] = parseFloat(expenseData.travelAllowanceAmount) || 0;
+        if (travelAmountField) dataMapping[travelAmountField] = String(expenseData.travelAllowanceAmount || 0);
 
-        // 应享受餐补天数
+        // 应享受餐补天数 - 转换为字符串
         const mealDaysField = findFieldName(fieldMappings.mealDays);
-        if (mealDaysField) dataMapping[mealDaysField] = parseInt(expenseData.mealDays) || 0;
+        if (mealDaysField) dataMapping[mealDaysField] = String(expenseData.mealDays || 0);
 
-        // 餐补金额
+        // 餐补金额 - 转换为字符串
         const mealAmountField = findFieldName(fieldMappings.mealAmount);
-        if (mealAmountField) dataMapping[mealAmountField] = parseFloat(expenseData.mealAllowanceAmount) || 0;
+        if (mealAmountField) dataMapping[mealAmountField] = String(expenseData.mealAllowanceAmount || 0);
 
-        // 合计
+        // 合计 - 转换为字符串
         const totalField = findFieldName(fieldMappings.total);
-        if (totalField) dataMapping[totalField] = parseFloat(expenseData.totalAmount) || 0;
+        if (totalField) dataMapping[totalField] = String(expenseData.totalAmount || 0);
+
+        // 填报时间 - 使用当前时间
+        if (fieldMap['填报时间']) {
+            dataMapping['填报时间'] = Date.now(); // 时间戳格式，适用于type 5
+        }
 
         console.log('数据映射:', dataMapping);
 

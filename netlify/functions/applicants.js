@@ -131,7 +131,7 @@ exports.handler = async (event, context) => {
                 department: fields['部门'] || fields['所属部门'] || fields['申请部门'] || '未知部门',
                 employee_id: fields['工号'] || fields['员工编号'] || record.record_id
             };
-        }).filter(applicant => applicant.name !== '未知');
+        }).filter(applicant => applicant.name !== '未知' && applicant.name.trim() !== '');
 
         console.log(`✅ 从飞书花名册获取到申请人: ${applicants.length} 人`);
 
