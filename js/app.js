@@ -27,11 +27,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 延迟一点确保DOM完全加载
     setTimeout(() => {
-        initializeCalendar();
-        initializeMonthOptions();
-        loadApplicants();
-        bindEvents();
-        console.log('✅ 应用初始化完成');
+        try {
+            console.log('开始执行初始化步骤...');
+            initializeCalendar();
+            console.log('日历初始化完成');
+
+            initializeMonthOptions();
+            console.log('月份选项初始化完成');
+
+            loadApplicants();
+            console.log('申请人加载开始');
+
+            bindEvents();
+            console.log('事件绑定完成');
+
+            console.log('✅ 应用初始化完成');
+        } catch (error) {
+            console.error('❌ 初始化过程中发生错误:', error);
+        }
     }, 100);
 });
 
