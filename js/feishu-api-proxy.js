@@ -35,7 +35,10 @@ class FeishuAPIProxy {
     async submitExpense(expenseData) {
         try {
             console.log('开始提交费用数据到飞书...');
-            
+            console.log('=== 代理API发送的数据 ===');
+            console.log('expenseData:', JSON.stringify(expenseData, null, 2));
+            console.log('reportMonth值:', expenseData.reportMonth);
+
             const response = await fetch(`${this.proxyUrl}/submit-expense`, {
                 method: 'POST',
                 headers: {

@@ -236,6 +236,7 @@ exports.handler = async (event, context) => {
         const fieldMappings = {
             applicant: ['申请人', '姓名', '员工姓名', '申请者'],
             department: ['申请部门', '部门', '所属部门', '员工部门'],
+            reportMonth: ['申请月份', '月份', '填报月份', '报销月份'],
             dates: ['出差日期', '差旅日期', '日期', '出差时间'],
             allowanceType: ['差补类型', '补贴类型', '差旅类型'],
             travelDays: ['应享受差补天数', '差补天数', '出差天数', '差旅天数'],
@@ -265,6 +266,10 @@ exports.handler = async (event, context) => {
         // 申请部门
         const departmentField = findFieldName(fieldMappings.department);
         if (departmentField) dataMapping[departmentField] = expenseData.applicantDepartment || '';
+
+        // 申请月份
+        const reportMonthField = findFieldName(fieldMappings.reportMonth);
+        if (reportMonthField) dataMapping[reportMonthField] = expenseData.reportMonth || '';
 
         // 出差日期
         const datesField = findFieldName(fieldMappings.dates);

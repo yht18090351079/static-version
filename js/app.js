@@ -538,6 +538,9 @@ async function handleFormSubmit(event) {
 
     try {
         console.log('开始提交费用数据到飞书...');
+        console.log('=== 前端发送的数据 ===');
+        console.log('formData:', JSON.stringify(formData, null, 2));
+        console.log('reportMonth值:', formData.reportMonth);
 
         // 直接使用飞书API提交数据
         const result = await window.feishuAPI.submitExpense(formData);
