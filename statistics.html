@@ -47,6 +47,25 @@
             <div class="filter-section">
                 <div class="filter-controls">
                     <div class="filter-group">
+                        <label for="dateRangeFilter">时间范围</label>
+                        <select id="dateRangeFilter" class="filter-select">
+                            <option value="">所有时间</option>
+                            <option value="thisMonth">本月</option>
+                            <option value="lastMonth">上月</option>
+                            <option value="thisQuarter">本季度</option>
+                            <option value="thisYear">今年</option>
+                            <option value="custom">自定义</option>
+                        </select>
+                    </div>
+                    <div class="filter-group" id="customDateGroup" style="display: none;">
+                        <label for="startDate">开始日期</label>
+                        <input type="date" id="startDate" class="filter-input">
+                    </div>
+                    <div class="filter-group" id="customDateGroup2" style="display: none;">
+                        <label for="endDate">结束日期</label>
+                        <input type="date" id="endDate" class="filter-input">
+                    </div>
+                    <div class="filter-group">
                         <label for="monthFilter">月份筛选</label>
                         <select id="monthFilter" class="filter-select">
                             <option value="">所有月份</option>
@@ -66,7 +85,21 @@
                             <option value="实施">实施</option>
                         </select>
                     </div>
+                    <div class="filter-group">
+                        <label for="amountFilter">金额范围</label>
+                        <select id="amountFilter" class="filter-select">
+                            <option value="">所有金额</option>
+                            <option value="0-500">0-500元</option>
+                            <option value="500-1000">500-1000元</option>
+                            <option value="1000-2000">1000-2000元</option>
+                            <option value="2000+">2000元以上</option>
+                        </select>
+                    </div>
                     <div class="action-group">
+                        <button type="button" id="clearFilters" class="btn-outline">
+                            <span class="btn-icon">🗑️</span>
+                            清空筛选
+                        </button>
                         <button type="button" id="refreshData" class="btn-primary">
                             <span class="btn-icon">🔄</span>
                             刷新数据
@@ -74,6 +107,10 @@
                         <button type="button" id="exportData" class="btn-secondary">
                             <span class="btn-icon">📥</span>
                             导出数据
+                        </button>
+                        <button type="button" id="printReport" class="btn-secondary">
+                            <span class="btn-icon">🖨️</span>
+                            打印报告
                         </button>
                     </div>
                 </div>
@@ -108,6 +145,64 @@
                         <div class="card-content">
                             <div class="card-title">总出差天数</div>
                             <div class="card-value" id="totalDays">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快速洞察 -->
+            <div class="insights-section">
+                <div class="section-header">
+                    <h3>📈 数据洞察</h3>
+                    <button type="button" id="refreshInsights" class="btn-outline-small">刷新</button>
+                </div>
+                <div class="insights-grid">
+                    <div class="insight-card">
+                        <div class="insight-icon">🏆</div>
+                        <div class="insight-content">
+                            <div class="insight-title">费用最高部门</div>
+                            <div class="insight-value" id="topDepartment">-</div>
+                            <div class="insight-detail" id="topDepartmentAmount">¥0</div>
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-icon">👤</div>
+                        <div class="insight-content">
+                            <div class="insight-title">费用最高员工</div>
+                            <div class="insight-value" id="topEmployee">-</div>
+                            <div class="insight-detail" id="topEmployeeAmount">¥0</div>
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-icon">📅</div>
+                        <div class="insight-content">
+                            <div class="insight-title">费用最高月份</div>
+                            <div class="insight-value" id="topMonth">-</div>
+                            <div class="insight-detail" id="topMonthAmount">¥0</div>
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-icon">📊</div>
+                        <div class="insight-content">
+                            <div class="insight-title">平均单次费用</div>
+                            <div class="insight-value" id="avgAmount">¥0</div>
+                            <div class="insight-detail" id="avgDays">平均0天</div>
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-icon">📈</div>
+                        <div class="insight-content">
+                            <div class="insight-title">费用趋势</div>
+                            <div class="insight-value" id="trendDirection">-</div>
+                            <div class="insight-detail" id="trendPercent">0%</div>
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-icon">⚡</div>
+                        <div class="insight-content">
+                            <div class="insight-title">活跃度</div>
+                            <div class="insight-value" id="activityLevel">-</div>
+                            <div class="insight-detail" id="activityDetail">-</div>
                         </div>
                     </div>
                 </div>
@@ -162,6 +257,51 @@
                         <div class="chart-container">
                             <canvas id="personChart"></canvas>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 对比分析 -->
+            <div class="comparison-section">
+                <div class="section-header">
+                    <h3>🔍 对比分析</h3>
+                    <div class="comparison-controls">
+                        <select id="comparisonType" class="filter-select">
+                            <option value="department">部门对比</option>
+                            <option value="month">月份对比</option>
+                            <option value="type">类型对比</option>
+                            <option value="person">人员对比</option>
+                        </select>
+                        <button type="button" id="generateComparison" class="btn-primary-small">生成对比</button>
+                    </div>
+                </div>
+                <div class="comparison-content">
+                    <div class="comparison-chart">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                    <div class="comparison-table">
+                        <table id="comparisonTable" class="data-table">
+                            <thead id="comparisonTableHead">
+                                <!-- 动态生成 -->
+                            </thead>
+                            <tbody id="comparisonTableBody">
+                                <!-- 动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 异常检测 -->
+            <div class="anomaly-section">
+                <div class="section-header">
+                    <h3>⚠️ 异常检测</h3>
+                    <button type="button" id="runAnomalyDetection" class="btn-warning-small">检测异常</button>
+                </div>
+                <div class="anomaly-results" id="anomalyResults">
+                    <div class="no-anomalies">
+                        <div class="no-data-icon">✅</div>
+                        <div class="no-data-text">暂无异常数据</div>
                     </div>
                 </div>
             </div>
