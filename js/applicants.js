@@ -31,11 +31,24 @@ function bindEvents() {
     
     // 刷新数据
     refreshDataBtn.addEventListener('click', refreshApplicants);
-    
+
+    // 新增申请人
+    document.getElementById('addApplicant').addEventListener('click', showAddModal);
+    document.getElementById('closeAddModal').addEventListener('click', hideAddModal);
+    document.getElementById('cancelAdd').addEventListener('click', hideAddModal);
+    document.getElementById('confirmAdd').addEventListener('click', handleAddApplicant);
+
+    // 删除确认
+    document.getElementById('closeDeleteModal').addEventListener('click', hideDeleteModal);
+    document.getElementById('cancelDelete').addEventListener('click', hideDeleteModal);
+    document.getElementById('confirmDelete').addEventListener('click', handleDeleteApplicant);
+
     // 模态框关闭
     document.addEventListener('click', (event) => {
         if (event.target.classList.contains('modal') || event.target.classList.contains('close')) {
             applicantDetailModal.style.display = 'none';
+            hideAddModal();
+            hideDeleteModal();
         }
     });
 }
@@ -173,6 +186,9 @@ function updateApplicantsList() {
     
     applicantsGrid.innerHTML = filteredApplicants.map(applicant => `
         <div class="applicant-card" onclick="showApplicantDetail('${applicant.id}')">
+            <button type="button" class="delete-btn" onclick="event.stopPropagation(); showDeleteModal(${JSON.stringify(applicant).replace(/"/g, '&quot;')})" title="删除申请人">
+                ×
+            </button>
             <div class="applicant-avatar">
                 <span class="avatar-text">${applicant.name.charAt(0)}</span>
             </div>
@@ -296,6 +312,131 @@ function showLoading(button, text) {
 function hideLoading(button) {
     button.disabled = false;
     button.textContent = button.dataset.originalText || '刷新数据';
+}
+
+// 显示新增申请人模态框
+function showAddModal() {
+    const modal = document.getElementById('addApplicantModal');
+    modal.classList.add('show');
+
+    // 清空表单
+    document.getElementById('addApplicantForm').reset();
+}
+
+// 隐藏新增申请人模态框
+function hideAddModal() {
+    const modal = document.getElementById('addApplicantModal');
+    modal.classList.remove('show');
+}
+
+// 处理新增申请人
+async function handleAddApplicant() {
+    const form = document.getElementById('addApplicantForm');
+    const formData = new FormData(form);
+
+    const applicantData = {
+        name: formData.get('name').trim(),
+        department: formData.get('department').trim(),
+        employee_id: formData.get('employee_id').trim() || null
+    };
+
+    // 验证必填字段
+    if (!applicantData.name || !applicantData.department) {
+        alert('请填写姓名和部门');
+        return;
+    }
+
+    try {
+        console.log('开始新增申请人:', applicantData);
+
+        const response = await fetch(`${window.feishuAPI.proxyUrl}/add-applicant`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(applicantData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showMessage('申请人新增成功！', 'success');
+            hideAddModal();
+            loadApplicants(); // 重新加载数据
+        } else {
+            throw new Error(result.message || '新增失败');
+        }
+
+    } catch (error) {
+        console.error('❌ 新增申请人失败:', error);
+        showMessage(`新增失败: ${error.message}`, 'error');
+    }
+}
+
+// 显示删除确认模态框
+function showDeleteModal(applicant) {
+    const modal = document.getElementById('deleteConfirmModal');
+    const nameElement = document.getElementById('deleteApplicantName');
+
+    nameElement.textContent = applicant.name;
+    modal.setAttribute('data-record-id', applicant.record_id || applicant.employee_id || applicant.id);
+    modal.classList.add('show');
+
+    // 清空密码输入
+    document.getElementById('adminPassword').value = '';
+}
+
+// 隐藏删除确认模态框
+function hideDeleteModal() {
+    const modal = document.getElementById('deleteConfirmModal');
+    modal.classList.remove('show');
+    modal.removeAttribute('data-record-id');
+}
+
+// 处理删除申请人
+async function handleDeleteApplicant() {
+    const modal = document.getElementById('deleteConfirmModal');
+    const recordId = modal.getAttribute('data-record-id');
+    const adminPassword = document.getElementById('adminPassword').value;
+
+    if (!adminPassword) {
+        alert('请输入管理员密码');
+        return;
+    }
+
+    if (!recordId) {
+        alert('缺少记录ID');
+        return;
+    }
+
+    try {
+        console.log('开始删除申请人:', recordId);
+
+        const response = await fetch(`${window.feishuAPI.proxyUrl}/delete-applicant`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                recordId: recordId,
+                adminPassword: adminPassword
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showMessage('申请人删除成功！', 'success');
+            hideDeleteModal();
+            loadApplicants(); // 重新加载数据
+        } else {
+            throw new Error(result.message || '删除失败');
+        }
+
+    } catch (error) {
+        console.error('❌ 删除申请人失败:', error);
+        showMessage(`删除失败: ${error.message}`, 'error');
+    }
 }
 
 console.log('✅ 申请人管理脚本已加载');

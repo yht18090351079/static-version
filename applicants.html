@@ -52,6 +52,10 @@
                                 </select>
                             </div>
                             <div class="action-group">
+                                <button type="button" id="addApplicant" class="btn-primary">
+                                    <span class="btn-icon">➕</span>
+                                    新增申请人
+                                </button>
                                 <button type="button" id="refreshData" class="btn-secondary">
                                     <span class="btn-icon">🔄</span>
                                     刷新数据
@@ -101,6 +105,58 @@
                 <div class="detail-info" id="applicantDetailInfo">
                     <!-- 详情信息将在这里显示 -->
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增申请人模态框 -->
+    <div id="addApplicantModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>新增申请人</h3>
+                <span class="close" id="closeAddModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="addApplicantForm">
+                    <div class="form-group">
+                        <label for="newApplicantName">姓名 <span class="required">*</span></label>
+                        <input type="text" id="newApplicantName" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newApplicantDepartment">部门 <span class="required">*</span></label>
+                        <input type="text" id="newApplicantDepartment" name="department" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newApplicantId">员工编号</label>
+                        <input type="text" id="newApplicantId" name="employee_id" placeholder="可选，系统会自动生成">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="cancelAdd" class="btn-secondary">取消</button>
+                <button type="button" id="confirmAdd" class="btn-primary">确认新增</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div id="deleteConfirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>删除申请人</h3>
+                <span class="close" id="closeDeleteModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除申请人 <strong id="deleteApplicantName"></strong> 吗？</p>
+                <div class="form-group">
+                    <label for="adminPassword">管理员密码 <span class="required">*</span></label>
+                    <input type="password" id="adminPassword" placeholder="请输入管理员密码" required>
+                    <small class="form-hint">删除操作需要管理员密码验证</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="cancelDelete" class="btn-secondary">取消</button>
+                <button type="button" id="confirmDelete" class="btn-danger">确认删除</button>
             </div>
         </div>
     </div>
