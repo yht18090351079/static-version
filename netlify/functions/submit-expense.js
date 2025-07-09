@@ -243,21 +243,21 @@ exports.handler = async (event, context) => {
         const travelDaysField = findFieldName(fieldMappings.travelDays);
         if (travelDaysField) dataMapping[travelDaysField] = String(expenseData.travelDays || 0);
 
-        // 差补金额 - 转换为字符串
+        // 差补金额 - 转换为数字
         const travelAmountField = findFieldName(fieldMappings.travelAmount);
-        if (travelAmountField) dataMapping[travelAmountField] = String(expenseData.travelAllowanceAmount || 0);
+        if (travelAmountField) dataMapping[travelAmountField] = parseFloat(expenseData.travelAllowanceAmount) || 0;
 
         // 应享受餐补天数 - 转换为字符串
         const mealDaysField = findFieldName(fieldMappings.mealDays);
         if (mealDaysField) dataMapping[mealDaysField] = String(expenseData.mealDays || 0);
 
-        // 餐补金额 - 转换为字符串
+        // 餐补金额 - 转换为数字
         const mealAmountField = findFieldName(fieldMappings.mealAmount);
-        if (mealAmountField) dataMapping[mealAmountField] = String(expenseData.mealAllowanceAmount || 0);
+        if (mealAmountField) dataMapping[mealAmountField] = parseFloat(expenseData.mealAllowanceAmount) || 0;
 
-        // 合计 - 转换为字符串
+        // 合计 - 转换为数字
         const totalField = findFieldName(fieldMappings.total);
-        if (totalField) dataMapping[totalField] = String(expenseData.totalAmount || 0);
+        if (totalField) dataMapping[totalField] = parseFloat(expenseData.totalAmount) || 0;
 
         // 填报时间 - 使用当前时间
         if (fieldMap['填报时间']) {
