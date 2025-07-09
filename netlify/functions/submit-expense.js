@@ -7,6 +7,23 @@ const FEISHU_CONFIG = {
     SPREADSHEET_URL: 'https://wcn0pu8598xr.feishu.cn/base/WFZIbJp3qa5DV2s9MnbchUYPnze'
 };
 
+// 解析飞书URL
+function parseFeishuUrl(url) {
+    try {
+        const match = url.match(/\/base\/([a-zA-Z0-9]+)/);
+        if (!match) {
+            throw new Error('无法解析飞书表格URL');
+        }
+
+        return {
+            success: true,
+            appToken: match[1]
+        };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
 // 访问令牌缓存
 let accessToken = null;
 let tokenExpiry = null;
@@ -35,6 +52,54 @@ async function getFeishuAccessToken() {
         }
     } catch (error) {
         console.error('❌ 获取飞书访问令牌失败:', error.message);
+        return { success: false, error: error.message };
+    }
+}
+
+// 查找或创建月份表格
+async function findOrCreateMonthTable(appToken, monthName, accessToken) {
+    try {
+        // 获取所有表格
+        const tablesResponse = await axios.get(
+            `https://open.feishu.cn/open-apis/bitable/v1/apps/${appToken}/tables`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        if (tablesResponse.data.code !== 0) {
+            throw new Error(`获取表格列表失败: ${tablesResponse.data.msg}`);
+        }
+
+        const tables = tablesResponse.data.data.items;
+
+        // 查找现有的月份表格
+        let targetTable = tables.find(table =>
+            table.name.includes(monthName) ||
+            table.name.includes('费用') ||
+            table.name.includes('报销')
+        );
+
+        // 如果没找到，使用第一个表格
+        if (!targetTable && tables.length > 0) {
+            targetTable = tables[0];
+            console.log(`使用默认表格: ${targetTable.name}`);
+        }
+
+        if (!targetTable) {
+            throw new Error('未找到可用的表格');
+        }
+
+        return {
+            success: true,
+            table: targetTable
+        };
+
+    } catch (error) {
+        console.error('查找表格失败:', error);
         return { success: false, error: error.message };
     }
 }
@@ -75,28 +140,144 @@ exports.handler = async (event, context) => {
             throw new Error('无法获取访问令牌');
         }
 
-        // 模拟成功提交（实际应该调用飞书API）
-        console.log('✅ 费用数据提交成功（模拟）');
-        
+        // 解析表格URL
+        const urlInfo = parseFeishuUrl(FEISHU_CONFIG.SPREADSHEET_URL);
+        if (!urlInfo.success) {
+            throw new Error('无法解析表格URL');
+        }
+
+        // 查找或创建月份表格
+        const monthName = expenseData.reportMonth || new Date().toISOString().slice(0, 7);
+        const tableResult = await findOrCreateMonthTable(urlInfo.appToken, monthName, tokenResult.token);
+        if (!tableResult.success) {
+            throw new Error('无法找到目标表格');
+        }
+
+        const table = tableResult.table;
+        console.log(`使用表格: ${table.name}`);
+
+        // 获取表格字段信息
+        const fieldsResponse = await axios.get(
+            `https://open.feishu.cn/open-apis/bitable/v1/apps/${urlInfo.appToken}/tables/${table.table_id}/fields`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${tokenResult.token}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        if (fieldsResponse.data.code !== 0) {
+            throw new Error(`获取字段信息失败: ${fieldsResponse.data.msg}`);
+        }
+
+        // 创建字段映射
+        const fields = fieldsResponse.data.data.items;
+        const fieldMap = {};
+        fields.forEach(field => {
+            fieldMap[field.field_name] = field;
+        });
+
+        console.log('可用字段:', Object.keys(fieldMap));
+
+        // 智能字段映射
+        const fieldMappings = {
+            applicant: ['申请人', '姓名', '员工姓名', '申请者'],
+            department: ['申请部门', '部门', '所属部门', '员工部门'],
+            dates: ['出差日期', '差旅日期', '日期', '出差时间'],
+            allowanceType: ['差补类型', '补贴类型', '差旅类型'],
+            travelDays: ['应享受差补天数', '差补天数', '出差天数', '差旅天数'],
+            travelAmount: ['差补金额', '差旅补贴', '出差补贴'],
+            mealDays: ['应享受餐补天数', '餐补天数', '用餐天数'],
+            mealAmount: ['餐补金额', '餐费补贴', '用餐补贴'],
+            total: ['合计', '总计', '总金额', '总费用']
+        };
+
+        // 查找匹配的字段名
+        function findFieldName(possibleNames) {
+            for (const name of possibleNames) {
+                if (fieldMap[name]) {
+                    return name;
+                }
+            }
+            return null;
+        }
+
+        // 准备数据映射
+        const dataMapping = {};
+
+        // 申请人
+        const applicantField = findFieldName(fieldMappings.applicant);
+        if (applicantField) dataMapping[applicantField] = expenseData.applicant;
+
+        // 申请部门
+        const departmentField = findFieldName(fieldMappings.department);
+        if (departmentField) dataMapping[departmentField] = expenseData.applicantDepartment || '';
+
+        // 出差日期
+        const datesField = findFieldName(fieldMappings.dates);
+        if (datesField) dataMapping[datesField] = expenseData.selectedDates ? expenseData.selectedDates.join(', ') : '';
+
+        // 差补类型
+        const allowanceTypeField = findFieldName(fieldMappings.allowanceType);
+        if (allowanceTypeField) dataMapping[allowanceTypeField] = expenseData.allowanceType === '90' ? '商务' : '实施';
+
+        // 应享受差补天数
+        const travelDaysField = findFieldName(fieldMappings.travelDays);
+        if (travelDaysField) dataMapping[travelDaysField] = parseInt(expenseData.travelDays) || 0;
+
+        // 差补金额
+        const travelAmountField = findFieldName(fieldMappings.travelAmount);
+        if (travelAmountField) dataMapping[travelAmountField] = parseFloat(expenseData.travelAllowanceAmount) || 0;
+
+        // 应享受餐补天数
+        const mealDaysField = findFieldName(fieldMappings.mealDays);
+        if (mealDaysField) dataMapping[mealDaysField] = parseInt(expenseData.mealDays) || 0;
+
+        // 餐补金额
+        const mealAmountField = findFieldName(fieldMappings.mealAmount);
+        if (mealAmountField) dataMapping[mealAmountField] = parseFloat(expenseData.mealAllowanceAmount) || 0;
+
+        // 合计
+        const totalField = findFieldName(fieldMappings.total);
+        if (totalField) dataMapping[totalField] = parseFloat(expenseData.totalAmount) || 0;
+
+        console.log('数据映射:', dataMapping);
+
+        // 提交数据到飞书表格
+        const submitResponse = await axios.post(
+            `https://open.feishu.cn/open-apis/bitable/v1/apps/${urlInfo.appToken}/tables/${table.table_id}/records`,
+            {
+                records: [{ fields: dataMapping }]
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${tokenResult.token}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        if (submitResponse.data.code !== 0) {
+            throw new Error(`提交数据失败: ${submitResponse.data.msg}`);
+        }
+
+        console.log('✅ 费用数据提交成功');
+
         return {
             statusCode: 200,
             headers,
             body: JSON.stringify({
                 success: true,
                 message: '费用数据提交成功',
-                table: 'expense_records',
-                data: {
-                    records: [{
-                        record_id: 'rec_' + Date.now(),
-                        created_time: new Date().toISOString()
-                    }]
-                }
+                table: table.name,
+                data: submitResponse.data.data
             })
         };
 
     } catch (error) {
         console.error('❌ 提交费用数据失败:', error);
-        
+
         return {
             statusCode: 500,
             headers,
