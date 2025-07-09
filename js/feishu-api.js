@@ -346,13 +346,20 @@ class FeishuAPI {
 
             // 检查字段是否存在并准备最终数据
             const availableFieldNames = fieldsResult.fields.map(f => f.field_name);
+            console.log('表格中可用的字段名:', availableFieldNames);
+            console.log('准备映射的数据:', dataMapping);
+
             const finalData = {};
             for (const [fieldName, value] of Object.entries(dataMapping)) {
                 if (availableFieldNames.includes(fieldName)) {
                     finalData[fieldName] = value;
-                    console.log(`映射字段: ${fieldName} = ${value}`);
+                    console.log(`✅ 映射字段: ${fieldName} = ${value}`);
+                } else {
+                    console.log(`❌ 字段不存在: ${fieldName}`);
                 }
             }
+
+            console.log('最终提交的数据:', finalData);
 
             // 写入数据
             const writeResult = await this.writeToTable(tableInfo.appToken, table.table_id, finalData);
