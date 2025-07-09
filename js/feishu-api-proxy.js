@@ -5,6 +5,7 @@ class FeishuAPIProxy {
         this.proxyUrl = window.location.origin.includes('localhost')
             ? 'http://localhost:3002'
             : window.location.origin + '/.netlify/functions';
+        console.log('🔧 API代理URL:', this.proxyUrl);
     }
 
     // 从花名册获取申请人数据
