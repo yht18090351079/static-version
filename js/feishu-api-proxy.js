@@ -4,7 +4,7 @@ class FeishuAPIProxy {
         // 代理服务器地址
         this.proxyUrl = window.location.origin.includes('localhost')
             ? 'http://localhost:3002'
-            : window.location.origin;
+            : window.location.origin + '/.netlify/functions';
     }
 
     // 从花名册获取申请人数据
@@ -12,7 +12,7 @@ class FeishuAPIProxy {
         try {
             console.log('从飞书花名册获取申请人数据...');
             
-            const response = await fetch(`${this.proxyUrl}/api/applicants`);
+            const response = await fetch(`${this.proxyUrl}/applicants`);
             const result = await response.json();
             
             if (result.success) {
@@ -35,7 +35,7 @@ class FeishuAPIProxy {
         try {
             console.log('开始提交费用数据到飞书...');
             
-            const response = await fetch(`${this.proxyUrl}/api/submit-expense`, {
+            const response = await fetch(`${this.proxyUrl}/submit-expense`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -62,7 +62,7 @@ class FeishuAPIProxy {
     // 健康检查
     async checkHealth() {
         try {
-            const response = await fetch(`${this.proxyUrl}/api/health`);
+            const response = await fetch(`${this.proxyUrl}/health`);
             const result = await response.json();
             return { success: true, data: result };
         } catch (error) {

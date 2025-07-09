@@ -1,6 +1,7 @@
 [build]
   publish = "."
   command = "echo 'No build step required for static site'"
+  functions = "netlify/functions"
 
 # SPA 重定向（用于单页应用）
 [[redirects]]
