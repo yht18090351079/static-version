@@ -253,16 +253,22 @@ app.post('/api/submit-expense', async (req, res) => {
         // 准备数据映射
         const dataMapping = {};
 
+        console.log('=== 开始数据映射 ===');
+        console.log('接收到的expenseData:', JSON.stringify(expenseData, null, 2));
+
         // 申请人
         const applicantField = findFieldName(fieldMappings.applicant);
+        console.log('申请人字段映射:', applicantField, '值:', expenseData.applicant);
         if (applicantField) dataMapping[applicantField] = expenseData.applicant;
 
         // 申请部门
         const departmentField = findFieldName(fieldMappings.department);
+        console.log('申请部门字段映射:', departmentField, '值:', expenseData.applicantDepartment);
         if (departmentField) dataMapping[departmentField] = expenseData.applicantDepartment || '';
 
         // 申请月份
         const reportMonthField = findFieldName(fieldMappings.reportMonth);
+        console.log('申请月份字段映射:', reportMonthField, '值:', expenseData.reportMonth);
         if (reportMonthField) dataMapping[reportMonthField] = expenseData.reportMonth || '';
 
         // 出差日期
@@ -292,6 +298,9 @@ app.post('/api/submit-expense', async (req, res) => {
         // 合计 (转为字符串，因为字段类型是文本)
         const totalField = findFieldName(fieldMappings.total);
         if (totalField) dataMapping[totalField] = String(expenseData.totalAmount || 0);
+
+        console.log('=== 数据映射完成 ===');
+        console.log('dataMapping:', JSON.stringify(dataMapping, null, 2));
 
         // 根据字段类型转换数据
         const finalData = {};
