@@ -57,7 +57,7 @@ async function getFeishuAccessToken() {
 }
 
 // 查找或创建月份表格
-async function findOrCreateMonthTable(appToken, monthName, accessToken, isTestMode = false) {
+async function findOrCreateMonthTable(appToken, monthName, accessToken) {
     try {
         // 获取所有表格
         const tablesResponse = await axios.get(
@@ -77,60 +77,38 @@ async function findOrCreateMonthTable(appToken, monthName, accessToken, isTestMo
         const tables = tablesResponse.data.data.items;
         console.log('所有可用表格:', tables.map(t => ({ name: t.name, id: t.table_id })));
 
-        let targetTable;
+        // 查找月份表格
+        console.log(`📊 查找月份表格 (${monthName})...`);
 
-        if (isTestMode) {
-            // 测试模式：查找"测试"表格
-            console.log('🧪 测试模式：查找测试表格...');
+        let targetTable = tables.find(table =>
+            table.name.includes(monthName) ||
+            table.name.includes('费用') ||
+            table.name.includes('报销')
+        );
+        console.log('第一轮查找结果:', targetTable ? targetTable.name : '未找到');
+
+        // 如果没找到月份表格，查找包含"月"的表格
+        if (!targetTable) {
+            targetTable = tables.find(table => table.name.includes('月'));
+            console.log('第二轮查找结果（包含"月"）:', targetTable ? targetTable.name : '未找到');
+        }
+
+        // 如果还没找到，使用第一个非花名册表格
+        if (!targetTable) {
             targetTable = tables.find(table =>
-                table.name.includes('测试') ||
-                table.name.toLowerCase().includes('test')
+                !table.name.includes('花名册')
             );
+            console.log('第三轮查找结果（排除花名册）:', targetTable ? targetTable.name : '未找到');
+        }
 
-            console.log('测试表格查找结果:', targetTable ? targetTable.name : '未找到');
+        // 最后使用第一个表格
+        if (!targetTable && tables.length > 0) {
+            targetTable = tables[0];
+            console.log('使用第一个表格:', targetTable.name);
+        }
 
-            if (!targetTable) {
-                const availableNames = tables.map(t => t.name).join(', ');
-                throw new Error(`未找到测试表格。可用表格: ${availableNames}`);
-            }
-
-            console.log(`🧪 测试模式：使用表格 ${targetTable.name} (ID: ${targetTable.table_id})`);
-        } else {
-            // 正常模式：查找月份表格
-            console.log(`📊 正常模式：查找月份表格 (${monthName})...`);
-
-            targetTable = tables.find(table =>
-                table.name.includes(monthName) ||
-                table.name.includes('费用') ||
-                table.name.includes('报销')
-            );
-            console.log('第一轮查找结果:', targetTable ? targetTable.name : '未找到');
-
-            // 如果没找到月份表格，查找包含"月"的表格
-            if (!targetTable) {
-                targetTable = tables.find(table => table.name.includes('月'));
-                console.log('第二轮查找结果（包含"月"）:', targetTable ? targetTable.name : '未找到');
-            }
-
-            // 如果还没找到，使用第一个非花名册、非测试表格
-            if (!targetTable) {
-                targetTable = tables.find(table =>
-                    !table.name.includes('花名册') &&
-                    !table.name.includes('测试') &&
-                    !table.name.toLowerCase().includes('test')
-                );
-                console.log('第三轮查找结果（排除花名册和测试）:', targetTable ? targetTable.name : '未找到');
-            }
-
-            // 最后使用第一个表格
-            if (!targetTable && tables.length > 0) {
-                targetTable = tables[0];
-                console.log('使用第一个表格:', targetTable.name);
-            }
-
-            if (targetTable) {
-                console.log(`📊 正常模式：使用表格 ${targetTable.name} (ID: ${targetTable.table_id})`);
-            }
+        if (targetTable) {
+            console.log(`📊 使用表格 ${targetTable.name} (ID: ${targetTable.table_id})`);
         }
 
         if (!targetTable) {
@@ -198,9 +176,8 @@ exports.handler = async (event, context) => {
 
         // 查找或创建月份表格
         const monthName = expenseData.reportMonth || new Date().toISOString().slice(0, 7);
-        const isTestMode = expenseData.isTestMode || false;
 
-        const tableResult = await findOrCreateMonthTable(urlInfo.appToken, monthName, tokenResult.token, isTestMode);
+        const tableResult = await findOrCreateMonthTable(urlInfo.appToken, monthName, tokenResult.token);
         if (!tableResult.success) {
             throw new Error('无法找到目标表格');
         }
@@ -304,7 +281,7 @@ exports.handler = async (event, context) => {
             dataMapping['填报时间'] = Date.now(); // 时间戳格式，适用于type 5
         }
 
-        console.log('数据映射:', dataMapping);
+
 
         // 提交数据到飞书表格 - 使用batch_create API
         const submitResponse = await axios.post(

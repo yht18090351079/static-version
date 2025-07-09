@@ -21,8 +21,7 @@ const currentMonthSpan = document.getElementById('currentMonth');
 const calendarGrid = document.getElementById('calendarGrid');
 const selectedDatesDiv = document.getElementById('selectedDates');
 
-// 测试模式状态
-let isTestMode = false;
+
 
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
@@ -31,22 +30,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // 延迟一点确保DOM完全加载
     setTimeout(() => {
         try {
-            console.log('开始执行初始化步骤...');
             initializeCalendar();
-            console.log('日历初始化完成');
-
             initializeMonthOptions();
-            console.log('月份选项初始化完成');
-
-            initializeTestMode();
-            console.log('测试模式初始化完成');
-
             loadApplicants();
-            console.log('申请人加载开始');
-
             bindEvents();
-            console.log('事件绑定完成');
-
             console.log('✅ 应用初始化完成');
         } catch (error) {
             console.error('❌ 初始化过程中发生错误:', error);
@@ -66,18 +53,12 @@ function initializeCalendar() {
 // 初始化月份选项
 function initializeMonthOptions() {
     try {
-        console.log('开始初始化月份选项...');
         const reportMonthSelect = document.getElementById('reportMonth');
 
         if (!reportMonthSelect) {
             console.error('❌ 找不到申请月份选择框元素，ID: reportMonth');
-            // 列出所有select元素用于调试
-            const allSelects = document.querySelectorAll('select');
-            console.log('页面中的所有select元素:', Array.from(allSelects).map(s => s.id || s.name));
             return;
         }
-
-        console.log('✅ 找到申请月份选择框元素');
 
         // 清空现有选项（保留第一个默认选项）
         const defaultOption = reportMonthSelect.querySelector('option[value=""]');
@@ -90,7 +71,7 @@ function initializeMonthOptions() {
         const currentMonth = now.getMonth() + 1; // 当前月份 (1-12)
         const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1; // 上个月
 
-        console.log(`当前月份: ${currentMonth}, 默认选择: ${lastMonth}月`);
+
 
         // 生成1-12月的选项
         for (let month = 1; month <= 12; month++) {
@@ -101,57 +82,19 @@ function initializeMonthOptions() {
             // 默认选中上个月
             if (month === lastMonth) {
                 option.selected = true;
-                console.log(`✅ 默认选中: ${month}月`);
             }
 
             reportMonthSelect.appendChild(option);
         }
 
-        console.log(`✅ 月份选项初始化完成，共添加了 ${reportMonthSelect.options.length} 个选项`);
+
 
     } catch (error) {
         console.error('❌ 初始化月份选项时发生错误:', error);
     }
 }
 
-// 初始化测试模式
-function initializeTestMode() {
-    const testModeToggle = document.getElementById('testModeToggle');
-    const testModeBanner = document.getElementById('testModeBanner');
-    const modeStatus = document.getElementById('modeStatus');
-    const modeDescription = document.getElementById('modeDescription');
-    const testModeInfo = document.getElementById('testModeInfo');
 
-    if (!testModeToggle) {
-        console.error('❌ 找不到测试模式切换元素');
-        return;
-    }
-
-    // 绑定切换事件
-    testModeToggle.addEventListener('change', function() {
-        isTestMode = this.checked;
-        updateTestModeUI();
-        console.log(`测试模式${isTestMode ? '已启用' : '已禁用'}`);
-    });
-
-    // 更新UI显示
-    function updateTestModeUI() {
-        if (isTestMode) {
-            testModeBanner.classList.add('show');
-            testModeInfo.classList.add('test-mode-active');
-            modeStatus.textContent = '测试模式';
-            modeDescription.textContent = '数据将提交到测试表格';
-        } else {
-            testModeBanner.classList.remove('show');
-            testModeInfo.classList.remove('test-mode-active');
-            modeStatus.textContent = '正常模式';
-            modeDescription.textContent = '数据将提交到月份表格';
-        }
-    }
-
-    // 初始化UI状态
-    updateTestModeUI();
-}
 
 // 获取当前应该填报的月份
 function getCurrentReportMonth() {
@@ -387,7 +330,7 @@ function bindEvents() {
 // 加载申请人列表
 async function loadApplicants() {
     try {
-        console.log('开始加载申请人数据...');
+
         
         // 首先尝试从飞书花名册获取
         const feishuResult = await window.feishuAPI.getApplicantsFromRoster();
@@ -531,24 +474,19 @@ async function handleFormSubmit(event) {
         mealDays: parseInt(mealDaysInput.value),
         travelAllowanceAmount: parseInt(travelAllowanceAmount.textContent),
         mealAllowanceAmount: parseInt(mealAllowanceAmount.textContent),
-        isTestMode: isTestMode, // 添加测试模式标识
+
         totalAmount: parseInt(totalAmount.textContent),
         submitTime: new Date().toISOString()
     };
 
     try {
         console.log('开始提交费用数据到飞书...');
-        console.log('=== 前端发送的数据 ===');
-        console.log('formData:', JSON.stringify(formData, null, 2));
-        console.log('reportMonth值:', formData.reportMonth);
 
         // 直接使用飞书API提交数据
         const result = await window.feishuAPI.submitExpense(formData);
 
         if (result.success) {
-            const targetTable = isTestMode ? '测试表格' : '月份表格';
-            const modeIcon = isTestMode ? '🧪' : '📊';
-            showMessage(`${modeIcon} 提交成功！数据已写入${targetTable}`, 'success');
+            showMessage('📊 提交成功！数据已写入飞书表格', 'success');
             console.log('✅ 费用数据提交成功，记录ID:', result.data?.records?.[0]?.record_id);
             expenseForm.reset();
             initializeCalendar();
