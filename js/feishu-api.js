@@ -298,14 +298,25 @@ class FeishuAPI {
     async submitExpense(expenseData) {
         try {
             console.log('开始提交费用数据到飞书...');
+            console.log('接收到的费用数据:', expenseData);
+            console.log('申请月份:', expenseData.reportMonth);
+            console.log('测试模式:', expenseData.isTestMode);
+
             const tableInfo = this.parseFeishuUrl(this.config.SPREADSHEET_URL);
             if (!tableInfo.success) {
                 return tableInfo;
             }
 
-            // 查找或创建月份表格
-            const monthName = expenseData.reportMonth || '当月';
-            const tableResult = await this.findOrCreateMonthTable(tableInfo.appToken, monthName);
+            // 根据测试模式选择表格
+            let tableResult;
+            if (expenseData.isTestMode) {
+                // 测试模式：使用"测试"表格
+                tableResult = await this.findOrCreateMonthTable(tableInfo.appToken, '测试');
+            } else {
+                // 正常模式：使用"6月"表格（或其他月份表格）
+                tableResult = await this.findOrCreateMonthTable(tableInfo.appToken, '6月');
+            }
+
             if (!tableResult.success) {
                 return tableResult;
             }

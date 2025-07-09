@@ -82,7 +82,10 @@ class FeishuAPIAlternative {
     async submitExpense(expenseData) {
         try {
             console.log('开始提交费用数据到本地存储...');
-            
+            console.log('接收到的费用数据:', expenseData);
+            console.log('申请月份:', expenseData.reportMonth);
+            console.log('测试模式:', expenseData.isTestMode);
+
             // 模拟网络延迟
             await new Promise(resolve => setTimeout(resolve, 1000));
             
