@@ -72,9 +72,9 @@ exports.handler = async (event, context) => {
 
         console.log('简单请求体:', JSON.stringify(requestBody, null, 2));
 
-        // 提交数据到飞书表格
+        // 提交数据到飞书表格 - 使用batch_create API
         const submitResponse = await axios.post(
-            `https://open.feishu.cn/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records`,
+            `https://open.feishu.cn/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records/batch_create`,
             requestBody,
             {
                 headers: {

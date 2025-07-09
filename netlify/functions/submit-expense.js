@@ -266,9 +266,9 @@ exports.handler = async (event, context) => {
 
         console.log('数据映射:', dataMapping);
 
-        // 提交数据到飞书表格
+        // 提交数据到飞书表格 - 使用batch_create API
         const submitResponse = await axios.post(
-            `https://open.feishu.cn/open-apis/bitable/v1/apps/${urlInfo.appToken}/tables/${table.table_id}/records`,
+            `https://open.feishu.cn/open-apis/bitable/v1/apps/${urlInfo.appToken}/tables/${table.table_id}/records/batch_create`,
             {
                 records: [{ fields: dataMapping }]
             },
