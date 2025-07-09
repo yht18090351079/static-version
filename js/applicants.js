@@ -47,12 +47,15 @@ async function loadApplicants() {
         showLoading(refreshDataBtn, '加载中...');
         
         // 从飞书花名册获取数据
+        console.log('开始调用飞书API获取申请人数据...');
         const feishuResult = await window.feishuAPI.getApplicantsFromRoster();
-        
+        console.log('飞书API返回结果:', feishuResult);
+
         if (feishuResult.success && feishuResult.data.length > 0) {
             applicants = feishuResult.data;
-            updateSourceStatus('success', `✅ 已从飞书花名册加载 ${applicants.length} 人`);
+            updateSourceStatus('success', `✅ 已从飞书花名册加载 ${applicants.length} 人 (来源: ${feishuResult.source || 'feishu'})`);
             console.log('✅ 从飞书花名册获取到申请人:', applicants.length, '人');
+            console.log('申请人数据详情:', applicants);
         } else {
             // 使用本地备用数据
             applicants = [
@@ -65,8 +68,8 @@ async function loadApplicants() {
                 { id: 7, name: '刘小红', department: '人事部' },
                 { id: 8, name: '王大力', department: '市场部' }
             ];
-            updateSourceStatus('fallback', `⚠️ 使用本地数据 (${applicants.length} 人)`);
-            console.log('⚠️ 使用本地备用数据');
+            updateSourceStatus('fallback', `⚠️ 使用本地数据 (${applicants.length} 人) - 原因: ${feishuResult.error || '飞书数据为空'}`);
+            console.log('⚠️ 使用本地备用数据，原因:', feishuResult.error || '飞书数据为空');
         }
         
         // 更新显示
