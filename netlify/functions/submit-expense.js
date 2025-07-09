@@ -57,7 +57,7 @@ async function getFeishuAccessToken() {
 }
 
 // 查找或创建月份表格
-async function findOrCreateMonthTable(appToken, monthName, accessToken) {
+async function findOrCreateMonthTable(appToken, monthName, accessToken, isTestMode = false) {
     try {
         // 获取所有表格
         const tablesResponse = await axios.get(
@@ -75,30 +75,49 @@ async function findOrCreateMonthTable(appToken, monthName, accessToken) {
         }
 
         const tables = tablesResponse.data.data.items;
+        let targetTable;
 
-        // 查找现有的月份表格
-        let targetTable = tables.find(table =>
-            table.name.includes(monthName) ||
-            table.name.includes('费用') ||
-            table.name.includes('报销')
-        );
+        if (isTestMode) {
+            // 测试模式：查找"测试"表格
+            targetTable = tables.find(table =>
+                table.name.includes('测试') ||
+                table.name.toLowerCase().includes('test')
+            );
 
-        // 如果没找到月份表格，查找包含"月"的表格
-        if (!targetTable) {
-            targetTable = tables.find(table => table.name.includes('月'));
+            if (!targetTable) {
+                throw new Error('未找到测试表格，请确保已创建名为"测试"的表格');
+            }
+
+            console.log(`🧪 测试模式：使用表格 ${targetTable.name}`);
+        } else {
+            // 正常模式：查找月份表格
+            targetTable = tables.find(table =>
+                table.name.includes(monthName) ||
+                table.name.includes('费用') ||
+                table.name.includes('报销')
+            );
+
+            // 如果没找到月份表格，查找包含"月"的表格
+            if (!targetTable) {
+                targetTable = tables.find(table => table.name.includes('月'));
+            }
+
+            // 如果还没找到，使用第一个非花名册、非测试表格
+            if (!targetTable) {
+                targetTable = tables.find(table =>
+                    !table.name.includes('花名册') &&
+                    !table.name.includes('测试') &&
+                    !table.name.toLowerCase().includes('test')
+                );
+            }
+
+            // 最后使用第一个表格
+            if (!targetTable && tables.length > 0) {
+                targetTable = tables[0];
+            }
+
+            console.log(`📊 正常模式：使用表格 ${targetTable.name}`);
         }
-
-        // 如果还没找到，使用第一个非花名册表格
-        if (!targetTable) {
-            targetTable = tables.find(table => !table.name.includes('花名册'));
-        }
-
-        // 最后使用第一个表格
-        if (!targetTable && tables.length > 0) {
-            targetTable = tables[0];
-        }
-
-        console.log(`使用表格: ${targetTable.name}`);
 
         if (!targetTable) {
             throw new Error('未找到可用的表格');
@@ -165,7 +184,9 @@ exports.handler = async (event, context) => {
 
         // 查找或创建月份表格
         const monthName = expenseData.reportMonth || new Date().toISOString().slice(0, 7);
-        const tableResult = await findOrCreateMonthTable(urlInfo.appToken, monthName, tokenResult.token);
+        const isTestMode = expenseData.isTestMode || false;
+
+        const tableResult = await findOrCreateMonthTable(urlInfo.appToken, monthName, tokenResult.token, isTestMode);
         if (!tableResult.success) {
             throw new Error('无法找到目标表格');
         }

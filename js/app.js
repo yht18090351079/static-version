@@ -21,6 +21,9 @@ const currentMonthSpan = document.getElementById('currentMonth');
 const calendarGrid = document.getElementById('calendarGrid');
 const selectedDatesDiv = document.getElementById('selectedDates');
 
+// 测试模式状态
+let isTestMode = false;
+
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 应用初始化开始...');
@@ -34,6 +37,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             initializeMonthOptions();
             console.log('月份选项初始化完成');
+
+            initializeTestMode();
+            console.log('测试模式初始化完成');
 
             loadApplicants();
             console.log('申请人加载开始');
@@ -106,6 +112,45 @@ function initializeMonthOptions() {
     } catch (error) {
         console.error('❌ 初始化月份选项时发生错误:', error);
     }
+}
+
+// 初始化测试模式
+function initializeTestMode() {
+    const testModeToggle = document.getElementById('testModeToggle');
+    const testModeBanner = document.getElementById('testModeBanner');
+    const modeStatus = document.getElementById('modeStatus');
+    const modeDescription = document.getElementById('modeDescription');
+    const testModeInfo = document.getElementById('testModeInfo');
+
+    if (!testModeToggle) {
+        console.error('❌ 找不到测试模式切换元素');
+        return;
+    }
+
+    // 绑定切换事件
+    testModeToggle.addEventListener('change', function() {
+        isTestMode = this.checked;
+        updateTestModeUI();
+        console.log(`测试模式${isTestMode ? '已启用' : '已禁用'}`);
+    });
+
+    // 更新UI显示
+    function updateTestModeUI() {
+        if (isTestMode) {
+            testModeBanner.classList.add('show');
+            testModeInfo.classList.add('test-mode-active');
+            modeStatus.textContent = '测试模式';
+            modeDescription.textContent = '数据将提交到测试表格';
+        } else {
+            testModeBanner.classList.remove('show');
+            testModeInfo.classList.remove('test-mode-active');
+            modeStatus.textContent = '正常模式';
+            modeDescription.textContent = '数据将提交到月份表格';
+        }
+    }
+
+    // 初始化UI状态
+    updateTestModeUI();
 }
 
 // 获取当前应该填报的月份
@@ -486,6 +531,7 @@ async function handleFormSubmit(event) {
         mealDays: parseInt(mealDaysInput.value),
         travelAllowanceAmount: parseInt(travelAllowanceAmount.textContent),
         mealAllowanceAmount: parseInt(mealAllowanceAmount.textContent),
+        isTestMode: isTestMode, // 添加测试模式标识
         totalAmount: parseInt(totalAmount.textContent),
         submitTime: new Date().toISOString()
     };
@@ -497,7 +543,9 @@ async function handleFormSubmit(event) {
         const result = await window.feishuAPI.submitExpense(formData);
 
         if (result.success) {
-            showMessage('提交成功！数据已写入飞书表格', 'success');
+            const targetTable = isTestMode ? '测试表格' : '月份表格';
+            const modeIcon = isTestMode ? '🧪' : '📊';
+            showMessage(`${modeIcon} 提交成功！数据已写入${targetTable}`, 'success');
             console.log('✅ 费用数据提交成功，记录ID:', result.data?.records?.[0]?.record_id);
             expenseForm.reset();
             initializeCalendar();
