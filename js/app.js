@@ -44,20 +44,17 @@ function initializeCalendar() {
 function initializeMonthOptions() {
     const reportMonthSelect = document.getElementById('reportMonth');
     const now = new Date();
+    const currentMonth = now.getMonth() + 1; // 当前月份 (1-12)
+    const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1; // 上个月
 
-    // 生成过去6个月和未来3个月的选项
-    for (let i = -6; i <= 3; i++) {
-        const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
-        const year = date.getFullYear();
-        const month = date.getMonth() + 1;
-        const monthName = date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' });
-
+    // 生成1-12月的选项
+    for (let month = 1; month <= 12; month++) {
         const option = document.createElement('option');
-        option.value = `${year}-${month.toString().padStart(2, '0')}`;
-        option.textContent = monthName;
+        option.value = month.toString();
+        option.textContent = `${month}月`;
 
         // 默认选中上个月
-        if (i === -1) {
+        if (month === lastMonth) {
             option.selected = true;
         }
 
@@ -65,27 +62,29 @@ function initializeMonthOptions() {
     }
 }
 
-// 获取当前应该填报的月份（上个月）
+// 获取当前应该填报的月份
 function getCurrentReportMonth() {
     const reportMonthSelect = document.getElementById('reportMonth');
     const selectedValue = reportMonthSelect.value;
 
     if (selectedValue) {
-        const [year, month] = selectedValue.split('-');
+        const month = parseInt(selectedValue);
+        const now = new Date();
         return {
-            year: parseInt(year),
-            month: parseInt(month),
-            monthName: reportMonthSelect.options[reportMonthSelect.selectedIndex].textContent
+            year: now.getFullYear(),
+            month: month,
+            monthName: `${month}月`
         };
     }
 
     // 如果没有选择，返回上个月作为默认值
     const now = new Date();
-    const reportDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const currentMonth = now.getMonth() + 1;
+    const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
     return {
-        year: reportDate.getFullYear(),
-        month: reportDate.getMonth() + 1,
-        monthName: reportDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' })
+        year: now.getFullYear(),
+        month: lastMonth,
+        monthName: `${lastMonth}月`
     };
 }
 
