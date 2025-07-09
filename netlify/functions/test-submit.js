@@ -79,7 +79,7 @@ exports.handler = async (event, context) => {
         const tableId = 'tblIu5VDeKeCOe7a';
         
         // 测试数据 - 最简单的数据
-        const testData = {
+        const testFields = {
             '申请人': '测试用户',
             '申请部门': '测试部门',
             '出差日期': '2024-01-01',
@@ -91,14 +91,23 @@ exports.handler = async (event, context) => {
             '合计': '90'
         };
 
-        console.log('测试数据:', testData);
+        console.log('测试字段:', testFields);
+
+        // 构建正确的请求体
+        const requestBody = {
+            records: [
+                {
+                    fields: testFields
+                }
+            ]
+        };
+
+        console.log('请求体:', JSON.stringify(requestBody, null, 2));
 
         // 提交数据到飞书表格
         const submitResponse = await axios.post(
             `https://open.feishu.cn/open-apis/bitable/v1/apps/${urlInfo.appToken}/tables/${tableId}/records`,
-            {
-                records: [{ fields: testData }]
-            },
+            requestBody,
             {
                 headers: {
                     'Authorization': `Bearer ${tokenResult.token}`,
