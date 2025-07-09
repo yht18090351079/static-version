@@ -148,6 +148,14 @@ exports.handler = async (event, context) => {
 
     } catch (error) {
         console.error('❌ 获取申请人失败:', error);
+        console.error('错误堆栈:', error.stack);
+
+        // 更详细的错误信息
+        let errorMessage = error.message || '获取申请人失败';
+        if (error.response) {
+            console.error('API响应错误:', error.response.data);
+            errorMessage = `API错误: ${error.response.data.msg || error.response.statusText}`;
+        }
 
         return {
             statusCode: 200,
@@ -156,7 +164,8 @@ exports.handler = async (event, context) => {
                 success: true,
                 data: fallbackApplicants,
                 source: 'fallback',
-                error: error.message
+                error: errorMessage,
+                details: error.response?.data || null
             })
         };
     }

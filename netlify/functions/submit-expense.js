@@ -131,6 +131,12 @@ exports.handler = async (event, context) => {
     }
 
     try {
+        console.log('收到请求，body:', event.body);
+
+        if (!event.body) {
+            throw new Error('请求体为空');
+        }
+
         const expenseData = JSON.parse(event.body);
         console.log('开始提交费用数据:', expenseData);
 
@@ -277,13 +283,23 @@ exports.handler = async (event, context) => {
 
     } catch (error) {
         console.error('❌ 提交费用数据失败:', error);
+        console.error('错误堆栈:', error.stack);
+
+        // 更详细的错误信息
+        let errorMessage = error.message || '提交失败';
+        if (error.response) {
+            console.error('API响应错误:', error.response.data);
+            errorMessage = `API错误: ${error.response.data.msg || error.response.statusText}`;
+        }
 
         return {
-            statusCode: 500,
+            statusCode: 200, // 改为200，让前端能正确处理错误
             headers,
             body: JSON.stringify({
                 success: false,
-                message: error.message || '提交失败'
+                message: errorMessage,
+                error: error.message,
+                details: error.response?.data || null
             })
         };
     }
