@@ -77,6 +77,12 @@
                         <h3 class="section-title">费用信息</h3>
                         <div class="form-row">
                             <div class="form-group">
+                                <label for="reportMonth">申请月份 <span class="required">*</span></label>
+                                <select id="reportMonth" name="reportMonth" required>
+                                    <option value="">请选择申请月份</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
                                 <label for="allowanceType">差补类型 <span class="required">*</span></label>
                                 <select id="allowanceType" name="allowanceType" required>
                                     <option value="">请选择差补类型</option>
@@ -84,6 +90,8 @@
                                     <option value="60" selected>实施 (60元/天)</option>
                                 </select>
                             </div>
+                        </div>
+                        <div class="form-row">
                             <div class="form-group">
                                 <label for="mealDays">餐补天数</label>
                                 <input type="number" id="mealDays" name="mealDays" min="0" value="0">

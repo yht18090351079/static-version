@@ -25,6 +25,7 @@ const selectedDatesDiv = document.getElementById('selectedDates');
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 应用初始化开始...');
     initializeCalendar();
+    initializeMonthOptions();
     loadApplicants();
     bindEvents();
     console.log('✅ 应用初始化完成');
@@ -39,13 +40,51 @@ function initializeCalendar() {
     updateSelectedDatesDisplay();
 }
 
+// 初始化月份选项
+function initializeMonthOptions() {
+    const reportMonthSelect = document.getElementById('reportMonth');
+    const now = new Date();
+
+    // 生成过去6个月和未来3个月的选项
+    for (let i = -6; i <= 3; i++) {
+        const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const monthName = date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' });
+
+        const option = document.createElement('option');
+        option.value = `${year}-${month.toString().padStart(2, '0')}`;
+        option.textContent = monthName;
+
+        // 默认选中上个月
+        if (i === -1) {
+            option.selected = true;
+        }
+
+        reportMonthSelect.appendChild(option);
+    }
+}
+
 // 获取当前应该填报的月份（上个月）
 function getCurrentReportMonth() {
+    const reportMonthSelect = document.getElementById('reportMonth');
+    const selectedValue = reportMonthSelect.value;
+
+    if (selectedValue) {
+        const [year, month] = selectedValue.split('-');
+        return {
+            year: parseInt(year),
+            month: parseInt(month),
+            monthName: reportMonthSelect.options[reportMonthSelect.selectedIndex].textContent
+        };
+    }
+
+    // 如果没有选择，返回上个月作为默认值
     const now = new Date();
     const reportDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     return {
         year: reportDate.getFullYear(),
-        month: reportDate.getMonth() + 1, // JavaScript月份从0开始
+        month: reportDate.getMonth() + 1,
         monthName: reportDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' })
     };
 }
@@ -350,6 +389,13 @@ function updateApplicantSelect(selectedDepartment = '') {
 
 // 表单验证
 function validateForm() {
+    const reportMonthSelect = document.getElementById('reportMonth');
+
+    if (!reportMonthSelect.value) {
+        showMessage('请选择申请月份', 'error');
+        return false;
+    }
+
     if (!departmentSelect.value) {
         showMessage('请选择申请部门', 'error');
         return false;
